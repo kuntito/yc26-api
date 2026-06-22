@@ -112,3 +112,86 @@ app.listen(
     }
 );
 `
+
+
+** NEON DB SETUP **
+
+
++   create acount:
+    `https://neon.tech`
+
++   create new project:
+    - postgres version: 18 (default)
+    - cloud service: AWS (default)
+    - region: default
+
++   click `Connect`
+    a dialog'd appear
+
+    with a text like:
+    `psql 'postgresql://...'`
+
+    everything within the single quotes is your connection string.
+    i.e. `postgresql://...`
+
+    add to your `.env`
+    `NEON_CONN_STR=postgresql://...`
+
+    add `NEON_CONN_STR` to the array, `requiredVariables` in `envConfig.ts`
+
+DEPENDENCIES
+
++   postgres client for node.js:
+    `npm i pg`
+
++   ts type definitions for `pg`:
+    `npm i -D @types/pg`
+
++   next, setup drizzle.
+    it serves a single source of truth for the SQL schema
+    and TS types.
+
+    you define the schema once, drizzle infers the types.
+
+    `npm install drizzle-orm`
+    `npm install -D drizzle-kit`
+
+DEPENDENCIES END
+
++   in project root, create dir, `schemas`
+
++   in project root, create `drizzle.config.ts`,
+    add:
+`
+import { defineConfig } from 'drizzle-kit';
+import { envConfig } from './envConfig';
+
+export default defineConfig({
+    schema: "./schemas/*.ts",
+    dialect: "postgresql",
+    dbCredentials: {
+        url: envConfig.NEON_CONN_STR
+    }
+});
+`
+
+CREATING A TABLE
++   creating a table looks like, see: `.\schemas\branch-schema.ts`
+
+`
+import { pgTable, serial, text } from "drizzle-orm/pg-core";
+
+export const branchTableName = 'branch';
+export const branchTable = pgTable(branchTableName, {
+    branchId: serial("id")
+        .primaryKey(),
+    branchName: text("name")
+        .notNull(),
+});
+
+export type BranchEntity = typeof branchTable.$inferSelect;
+export type BranchInsertEntity = typeof branchTable.$inferInsert;
+`
+
++   then in terminal, create the tables in your neon account:
+    `npx drizzle-kit push`

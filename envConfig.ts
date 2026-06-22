@@ -12,7 +12,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const requiredVariables = [
-    // variables go here...
+    "NEON_CONN_STR"
 ] as const;
 
 for (const key of requiredVariables) {
