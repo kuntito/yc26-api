@@ -195,3 +195,54 @@ export type BranchInsertEntity = typeof branchTable.$inferInsert;
 
 +   then in terminal, create the tables in your neon account:
     `npx drizzle-kit push`
+
+CREATING DB CLIENT
+    allows you interact with the db.
+
+in root, create, `clients/dbClient.ts`
+
+add:
+
+`
+import { Pool } from "pg";
+import { envConfig } from "../envConfig";
+import { drizzle } from "drizzle-orm/node-postgres";
+
+export const neonDbClient = new Pool({
+    connectionString: envConfig.NEON_CONN_STR,
+    // encrypts connection, skips certificate verification (acceptable for personal app)
+    ssl: { rejectUnauthorized: false },
+});
+
+export const ycDb = drizzle(neonDbClient);
+`
+
+in root, create: `util/helpers.ts`
+
+add:
+`
+/**
+ * formats db error messages on new line.
+ * and logs on the console.
+ *
+ * e.g. \
+ * \* \
+ * could not run `isDbTableEmpty` for table: nextSong \
+ * errorMessage: Failed query... \
+ * db error: column "posInQueue" does not exist \
+ * \*
+ */
+export const logDbError = (message: string, e: unknown) => {
+    const constructedMessage = "*" +
+        "\n" +
+        message + 
+        "\n" +
+        "errorMessage: " + (e as Error).message +
+        "\n" +
+        "db error: " + (e as any)?.cause +
+        "\n" +
+        "*";
+
+    console.log(constructedMessage);
+}
+`
