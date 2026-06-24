@@ -1,7 +1,5 @@
 import { pgTable, serial, text, integer, pgEnum } from "drizzle-orm/pg-core";
 
-export const sexEnum = pgEnum("sex_enum", ["male", "female"]);
-
 export const registrantsTN = "registrants";
 export const registrantsTable = pgTable(registrantsTN, {
     registrantId: serial("id")
@@ -13,7 +11,7 @@ export const registrantsTable = pgTable(registrantsTN, {
     email: text("email")
         .notNull()
         .unique(),
-    sex: sexEnum("sex")
+    genderId: integer("gender_id")
         .notNull(),
     branchId: integer("branch_id")
         .notNull(),

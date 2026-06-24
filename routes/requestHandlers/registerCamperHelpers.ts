@@ -5,13 +5,14 @@ import { RegistrantInsertEntity, registrantsTable } from "../../schemas/registra
 import { unitTable } from "../../schemas/unit-schema";
 import { eq } from "drizzle-orm";
 import { logDbError } from "../../util/helpers";
+import { genderTable } from "../../schemas/gender-schema";
 
 
 interface CamperDetails {
     firstName: string;
     lastName: string;
     email: string;
-    sex: 'male' | 'female';
+    genderId: number;
     branchId: number;
     fellowshipId: number;
     unitId: number;
@@ -42,7 +43,7 @@ export const validateCamperDetails = (
         firstName,
         lastName,
         email,
-        sex,
+        genderId: genderIdStr,
         branchId: branchIdStr,
         fellowshipId: fellowshipIdStr,
         unitId: unitIdStr,
@@ -77,22 +78,14 @@ export const validateCamperDetails = (
         };
     }
 
-    if (!sex?.trim()) {
+    const genderId = Number(genderIdStr);
+    if (isNaN(genderId)) {
         return {
             isValid: false,
-            reason: "can't register, no sex",
+            reason: "can't register, invalid gender",
         };
     }
 
-
-    // TODO, 'male' and 'female' are hardcoded client side
-    const validSexValues = ["male", "female"];
-    if (!validSexValues.includes(sex.trim().toLowerCase())) {
-        return {
-            isValid: false,
-            reason: "can't register, sex must be 'male' or 'female'",
-        };
-    }
 
     const branchId = Number(branchIdStr);
     if (isNaN(branchId)) {
@@ -124,7 +117,7 @@ export const validateCamperDetails = (
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             email: email.trim(),
-            sex: sex.trim().toLowerCase(),
+            genderId: genderId,
             branchId: branchId,
             fellowshipId: fellowshipId,
             unitId: unitId,
@@ -137,7 +130,7 @@ export type RegisteredCamperDetails = {
     firstName: string;
     lastName: string;
     email: string;
-    sex: string;
+    genderName: string;
     branchName: string;
     fellowshipName: string;
     unitName: string;
@@ -151,7 +144,7 @@ export const registerCamper = async (
             firstName: camperDetails.firstName,
             lastName: camperDetails.lastName,
             email: camperDetails.email,
-            sex: camperDetails.sex,
+            genderId: camperDetails.genderId,
             branchId: camperDetails.branchId,
             fellowshipId: camperDetails.fellowshipId,
             unitId: camperDetails.unitId,
@@ -166,12 +159,19 @@ export const registerCamper = async (
                 firstName: registrantsTable.firstName,
                 lastName: registrantsTable.lastName,
                 email: registrantsTable.email,
-                sex: registrantsTable.sex,
+                genderName: genderTable.genderName,
                 branchName: branchTable.branchName,
                 fellowshipName: fellowshipTable.fellowshipName,
                 unitName: unitTable.unitName,
             })
             .from(registrantsTable)
+            .innerJoin(
+                genderTable,
+                eq(
+                    registrantsTable.genderId,
+                    genderTable.genderId,
+                )
+            )
             .innerJoin(
                 branchTable,
                 eq(
