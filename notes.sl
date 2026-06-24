@@ -156,6 +156,9 @@ DEPENDENCIES
     `npm install drizzle-orm`
     `npm install -D drizzle-kit`
 
++   web sockets dependency
+    `npm install socket.io`
+
 DEPENDENCIES END
 
 +   in project root, create dir, `schemas`

@@ -1,3 +1,7 @@
+import { count } from "drizzle-orm";
+import { ycDb } from "../clients/dbClient";
+import { registrantsTable } from "../schemas/registrants-schema";
+
 /**
  * formats db error messages on new line.
  * and logs on the console.
@@ -21,4 +25,27 @@ export const logDbError = (message: string, e: unknown) => {
         "*";
 
     console.log(constructedMessage);
+}
+
+
+export const initRegistrantCount = async (
+
+): Promise<number | null> => {
+    try {
+        const rows = await ycDb
+            .select({
+                count: count(
+                    registrantsTable.registrantId
+                )
+            })
+            .from(registrantsTable)
+
+        return rows[0].count;
+    } catch (e) {
+        logDbError(
+            "couldn't fetch registrants count",
+            e
+        );
+    }
+    return null;
 }

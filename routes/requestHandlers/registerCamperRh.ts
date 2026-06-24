@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { checkEmailExists, registerCamper, RegisteredCamperDetails, validateCamperDetails } from "./registerCamperHelpers";
+import { broadcastNewRegistrant } from "../../server";
 
 type RegisterCamperResponse = 
     | {
@@ -63,12 +64,15 @@ const registerCamperRh = async (
             })
     }
 
-    return res
+    res
         .status(200)
         .json({
             success: true,
             registeredCamperDetails: registeredCamperDetails
         })
+
+    await broadcastNewRegistrant();
+    
 }
 
 export { registerCamperRh };
