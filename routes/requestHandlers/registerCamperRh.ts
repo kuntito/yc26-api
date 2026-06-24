@@ -32,7 +32,7 @@ const registerCamperRh = async (
 
 
     const registeredCamperDetails = await registerCamper(validationRes.details);
-    console.log(`registered camper details, ${registeredCamperDetails}`);
+    console.log(`registered camper details, ${JSON.stringify(registeredCamperDetails, null, 2)}`);
     
 
     if (registeredCamperDetails == null) {
