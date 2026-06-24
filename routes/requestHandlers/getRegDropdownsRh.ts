@@ -3,11 +3,14 @@ import { Branch, toBranchFromEntity } from "../../models/Branch";
 import { Fellowship, toFellowshipFromEntity } from "../../models/Fellowship";
 import { toUnitFromEntity, Unit } from "../../models/Unit";
 import { getRegDropdowns } from "./getRegDropdownsHelpers";
+import { Gender, toGenderFromEntity } from "../../models/Gender";
 
 
 type GetRegDropdownsResponse = 
     | {
         success: true;
+        // TODO should bundle all four as part one object
+        genders: Gender[];
         branches: Branch[];
         fellowships: Fellowship[];
         units: Unit[];
@@ -38,6 +41,7 @@ const getRegDropdownsRh = async (
             .status(200)
             .json({
                 success: true,
+                genders: regDropdowns.genderEntities.map(toGenderFromEntity),
                 branches: regDropdowns.branchEntities.map(toBranchFromEntity),
                 fellowships: regDropdowns.fellowshipEntities.map(toFellowshipFromEntity),
                 units: regDropdowns.unitEntities.map(toUnitFromEntity),

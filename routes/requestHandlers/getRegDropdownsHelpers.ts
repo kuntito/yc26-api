@@ -1,10 +1,12 @@
 import { ycDb } from "../../clients/dbClient";
 import { BranchEntity, branchTable } from "../../schemas/branch-schema";
 import { FellowshipEntity, fellowshipTable } from "../../schemas/fellowship-schema";
+import { GenderEntity, genderTable } from "../../schemas/gender-schema";
 import { UnitEntity, unitTable } from "../../schemas/unit-schema";
 import { logDbError } from "../../util/helpers";
 
 export type RegDropdowns = {
+    genderEntities: GenderEntity[];
     branchEntities: BranchEntity[];
     fellowshipEntities: FellowshipEntity[];
     unitEntities: UnitEntity[];
@@ -18,10 +20,14 @@ export type RegDropdowns = {
 export const getRegDropdowns = async (): Promise<RegDropdowns | null> => {
     try {
         const [
+            genderEntitites,
             branchEntities,
             fellowshipEntities,
             unitEntities
         ] = await Promise.all([
+            ycDb
+                .select()
+                .from(genderTable),
             ycDb
                 .select()
                 .from(branchTable),
@@ -34,6 +40,7 @@ export const getRegDropdowns = async (): Promise<RegDropdowns | null> => {
         ]);
 
         return {
+            genderEntities: genderEntitites,
             branchEntities: branchEntities,
             fellowshipEntities: fellowshipEntities,
             unitEntities: unitEntities,

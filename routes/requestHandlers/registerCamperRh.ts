@@ -32,6 +32,8 @@ const registerCamperRh = async (
 
 
     const registeredCamperDetails = await registerCamper(validationRes.details);
+    console.log(`registered camper details, ${registeredCamperDetails}`);
+    
 
     if (registeredCamperDetails == null) {
         const emailAlreadyExists = await checkEmailExists(

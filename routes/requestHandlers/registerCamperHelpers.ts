@@ -149,6 +149,7 @@ export const registerCamper = async (
             fellowshipId: camperDetails.fellowshipId,
             unitId: camperDetails.unitId,
         };
+        console.log("inserting:", registrant);
 
         await ycDb
             .insert(registrantsTable)
