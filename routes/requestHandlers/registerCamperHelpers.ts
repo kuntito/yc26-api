@@ -4,7 +4,7 @@ import { fellowshipTable } from "../../schemas/fellowship-schema";
 import { RegistrantInsertEntity, registrantsTable } from "../../schemas/registrants-schema";
 import { unitTable } from "../../schemas/unit-schema";
 import { eq } from "drizzle-orm";
-import { logDbError } from "../../util/helpers";
+import { capitalize, logDbError, sendEmail } from "../../util/helpers";
 import { genderTable } from "../../schemas/gender-schema";
 
 
@@ -127,6 +127,7 @@ export const validateCamperDetails = (
 
 
 export type RegisteredCamperDetails = {
+    camperId: number;
     firstName: string;
     lastName: string;
     email: string;
@@ -157,6 +158,7 @@ export const registerCamper = async (
 
         const rows = await ycDb
             .select({
+                camperId: registrantsTable.registrantId,
                 firstName: registrantsTable.firstName,
                 lastName: registrantsTable.lastName,
                 email: registrantsTable.email,
@@ -242,3 +244,67 @@ export const checkEmailExists = async (
     }
     return null;
 };
+
+export const constructConfirmationMail = (
+    firstName: string,
+    unitName: string,
+): string => {
+    const messageTemplate = `
+    <div style="position: relative; font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #F9F9F9;">
+        <img 
+            src="https://camp26-eight.vercel.app/algc_logo.png"
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; opacity: 0.18; pointer-events: none;"
+        />
+        <p>hello, <strong style="font-weight: bold; color: #00003F;">${firstName}</strong></p>
+
+        <p>you're registered for <strong>Abundant Life's Youth Camp, 2026</strong>.</p>
+
+        <p>you're in the <strong>${unitName}</strong> unit.<br/>
+        your unit's duties would be communicated shortly.</p>
+
+        <p>this year, campers'd be grouped into families.<br/>
+        once the grouping is finalized, you will be notified.</p>
+
+        <p>speak to you soon.</p>
+
+        <p style="font-weight: bold; color: #00003F;">
+            Abundant Life Media Team,<br/>
+            Ibadan.
+        </p>
+    </div>
+    `
+
+    return messageTemplate;
+}
+
+
+export const sendMailRegConfirmation = async (
+    details: RegisteredCamperDetails,
+): Promise<boolean> => {
+    const firstName = capitalize(details.firstName);
+    const unitName = details.unitName;
+
+    const to = details.email;
+    const subject = "Registration Confirmation"
+
+    const emailMessage = constructConfirmationMail(
+        firstName,
+        unitName,
+    )
+
+    try {
+        await sendEmail(
+            to,
+            subject,
+            emailMessage,
+        )
+
+        return true;
+    } catch (e) {
+        console.error(
+            `couldn't send registration email, userId = ${details.camperId}, email=${details.email}`, 
+            e
+        );
+    }
+    return false;
+}

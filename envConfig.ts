@@ -12,7 +12,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const requiredVariables = [
-    "NEON_CONN_STR"
+    "NEON_CONN_STR",
+    "RESEND_API_KEY"
 ] as const;
 
 for (const key of requiredVariables) {

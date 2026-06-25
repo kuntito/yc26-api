@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { checkEmailExists, registerCamper, RegisteredCamperDetails, validateCamperDetails } from "./registerCamperHelpers";
+import { checkEmailExists, registerCamper, RegisteredCamperDetails, sendMailRegConfirmation, validateCamperDetails } from "./registerCamperHelpers";
 import { broadcastNewRegistrant } from "../../server";
 
 type RegisterCamperResponse = 
@@ -72,6 +72,9 @@ const registerCamperRh = async (
         })
 
     await broadcastNewRegistrant();
+    await sendMailRegConfirmation(
+        registeredCamperDetails
+    )
     
 }
 

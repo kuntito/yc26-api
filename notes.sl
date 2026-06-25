@@ -249,3 +249,11 @@ export const logDbError = (message: string, e: unknown) => {
     console.log(constructedMessage);
 }
 `
+
+SENDING EMAILS
+
++   for sending emails
+    `npm install resend`
+
++   register at:
+    `https://resend.com`
