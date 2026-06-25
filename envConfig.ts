@@ -13,7 +13,8 @@ dotenv.config();
 
 const requiredVariables = [
     "NEON_CONN_STR",
-    "RESEND_API_KEY"
+    "RESEND_API_KEY",
+    "FROM_EMAIL",
 ] as const;
 
 for (const key of requiredVariables) {

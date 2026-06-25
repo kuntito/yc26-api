@@ -63,7 +63,7 @@ export const sendEmail = async (
     );
 
     resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: envConfig.FROM_EMAIL,
         to: to,
         subject: subject,
         html: html
