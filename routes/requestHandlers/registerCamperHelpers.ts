@@ -299,6 +299,8 @@ export const sendMailRegConfirmation = async (
             emailMessage,
         )
 
+        console.log(`confirmation mail sent to: ${details.email}`);
+        
         return true;
     } catch (e) {
         console.error(
