@@ -263,13 +263,13 @@ export const constructConfirmationMail = (
         <p>you're in the <strong>${unitName}</strong> unit.<br/>
         your unit's duties would be communicated shortly.</p>
 
-        <p>this year, campers'd be grouped into families.<br/>
+        <p>this year, campers would be grouped into families.<br/>
         once the grouping is finalized, you will be notified.</p>
 
         <p>speak to you soon.</p>
 
         <p style="font-weight: bold; color: #00003F;">
-            Registration Team,<br/>
+            Registration Team, Life Champions<br/>
             Ibadan.
         </p>
     </div>
