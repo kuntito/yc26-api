@@ -268,7 +268,7 @@ export const constructConfirmationMail = (
         <p>speak to you soon.</p>
 
         <p style="font-weight: bold; color: #00003F;">
-            Abundant Life Media Team,<br/>
+            Registration Team,<br/>
             Ibadan.
         </p>
     </div>
