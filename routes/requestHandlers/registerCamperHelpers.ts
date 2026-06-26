@@ -247,6 +247,7 @@ export const checkEmailExists = async (
 
 export const constructConfirmationMail = (
     firstName: string,
+    lastName: string,
     unitName: string,
 ): string => {
     const messageTemplate = `
@@ -255,7 +256,7 @@ export const constructConfirmationMail = (
             src="https://camp26-eight.vercel.app/algc_logo.png"
             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; opacity: 0.18; pointer-events: none;"
         />
-        <p>hello, <strong style="font-weight: bold; color: #00003F;">${firstName}</strong></p>
+        <p>hello, <strong style="font-weight: bold; color: #00003F;">${firstName} ${lastName}</strong></p>
 
         <p>you're registered for <strong>Abundant Life's Youth Camp, 2026</strong>.</p>
 
@@ -282,6 +283,7 @@ export const sendMailRegConfirmation = async (
     details: RegisteredCamperDetails,
 ): Promise<boolean> => {
     const firstName = capitalize(details.firstName);
+    const lastName = capitalize(details.lastName);
     const unitName = details.unitName;
 
     const to = details.email;
@@ -289,6 +291,7 @@ export const sendMailRegConfirmation = async (
 
     const emailMessage = constructConfirmationMail(
         firstName,
+        lastName,
         unitName,
     )
 
