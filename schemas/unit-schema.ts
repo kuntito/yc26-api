@@ -6,6 +6,7 @@ export const unitTable = pgTable(unitTableName, {
         .primaryKey(),
     unitName: text("name")
         .notNull(),
+    unitDuties: text("duties")
 });
 
 export type UnitEntity = typeof unitTable.$inferSelect;
