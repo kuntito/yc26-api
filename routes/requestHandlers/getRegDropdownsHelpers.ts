@@ -1,5 +1,6 @@
 import { ycDb } from "../../clients/dbClient";
 import { BranchEntity, branchTable } from "../../schemas/branch-schema";
+import { CountryCodeEntity, countryCodeTable } from "../../schemas/countryCode-schema";
 import { FellowshipEntity, fellowshipTable } from "../../schemas/fellowship-schema";
 import { GenderEntity, genderTable } from "../../schemas/gender-schema";
 import { UnitEntity, unitTable } from "../../schemas/unit-schema";
@@ -10,6 +11,7 @@ export type RegDropdowns = {
     branchEntities: BranchEntity[];
     fellowshipEntities: FellowshipEntity[];
     unitEntities: UnitEntity[];
+    countryCodeEntities: CountryCodeEntity[];
 }
 
 
@@ -26,7 +28,8 @@ export const getRegDropdowns = async (): Promise<RegDropdowns | null> => {
             genderEntities,
             branchEntities,
             fellowshipEntities,
-            unitEntities
+            unitEntities,
+            countryCodeEntities,
         ] = await Promise.all([
             ycDb
                 .select()
@@ -40,6 +43,9 @@ export const getRegDropdowns = async (): Promise<RegDropdowns | null> => {
             ycDb
                 .select()
                 .from(unitTable),
+            ycDb
+                .select()
+                .from(countryCodeTable),
         ]);
 
         cachedDropdowns = {
@@ -47,6 +53,7 @@ export const getRegDropdowns = async (): Promise<RegDropdowns | null> => {
             branchEntities: branchEntities,
             fellowshipEntities: fellowshipEntities,
             unitEntities: unitEntities,
+            countryCodeEntities: countryCodeEntities,
         }
 
         return cachedDropdowns;

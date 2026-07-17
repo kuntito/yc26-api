@@ -4,6 +4,7 @@ import { Fellowship, toFellowshipFromEntity } from "../../models/Fellowship";
 import { toUnitFromEntity, Unit } from "../../models/Unit";
 import { getRegDropdowns } from "./getRegDropdownsHelpers";
 import { Gender, toGenderFromEntity } from "../../models/Gender";
+import { CountryCode, toCountryCodeFromEntity } from "../../models/CountryCode";
 
 
 type GetRegDropdownsResponse = 
@@ -14,6 +15,7 @@ type GetRegDropdownsResponse =
         branches: Branch[];
         fellowships: Fellowship[];
         units: Unit[];
+        countryCodes: CountryCode[];
     }
     | {
         success: false;
@@ -45,6 +47,7 @@ const getRegDropdownsRh = async (
                 branches: regDropdowns.branchEntities.map(toBranchFromEntity),
                 fellowships: regDropdowns.fellowshipEntities.map(toFellowshipFromEntity),
                 units: regDropdowns.unitEntities.map(toUnitFromEntity),
+                countryCodes: regDropdowns.countryCodeEntities.map(toCountryCodeFromEntity),
             });
     }
 }

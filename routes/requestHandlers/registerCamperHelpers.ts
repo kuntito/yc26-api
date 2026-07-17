@@ -16,6 +16,7 @@ interface CamperDetails {
     branchId: number;
     fellowshipId: number;
     unitId: number;
+    phoneNumber: string;
 }
 
 
@@ -47,6 +48,7 @@ export const validateCamperDetails = (
         branchId: branchIdStr,
         fellowshipId: fellowshipIdStr,
         unitId: unitIdStr,
+        phoneNumber,
     } = body;
 
     if (!firstName?.trim()) {
@@ -111,6 +113,21 @@ export const validateCamperDetails = (
         };
     }
 
+    if (!phoneNumber?.trim()) {
+        return {
+            isValid: false,
+            reason: "can't register, no whatsapp phone number",
+        }
+    }
+
+    const phoneRegex = /^\+?[0-9]{9,15}$/;
+    if (!phoneRegex.test(phoneNumber.trim().replace(/\s+/g, ""))) {
+        return {
+            isValid: false,
+            reason: "can't register, whatsapp phone number should be 9-15 digits",
+        };
+    }
+
     return {
         isValid: true,
         details: {
@@ -121,6 +138,7 @@ export const validateCamperDetails = (
             branchId: branchId,
             fellowshipId: fellowshipId,
             unitId: unitId,
+            phoneNumber: phoneNumber,
         }
     }
 }
@@ -135,6 +153,7 @@ export type RegisteredCamperDetails = {
     branchName: string;
     fellowshipName: string;
     unitName: string;
+    phoneNumber: string | null;
 };
 
 export const registerCamper = async (
@@ -149,6 +168,7 @@ export const registerCamper = async (
             branchId: camperDetails.branchId,
             fellowshipId: camperDetails.fellowshipId,
             unitId: camperDetails.unitId,
+            phoneNumber: camperDetails.phoneNumber,
         };
         console.log("inserting:", registrant);
 
@@ -166,6 +186,7 @@ export const registerCamper = async (
                 branchName: branchTable.branchName,
                 fellowshipName: fellowshipTable.fellowshipName,
                 unitName: unitTable.unitName,
+                phoneNumber: registrantsTable.phoneNumber,
             })
             .from(registrantsTable)
             .innerJoin(
