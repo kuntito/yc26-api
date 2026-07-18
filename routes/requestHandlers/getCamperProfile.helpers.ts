@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 import { ycDb } from "../../clients/dbClient";
 import { branchTable } from "../../schemas/branch-schema";
 import { fellowshipTable } from "../../schemas/fellowship-schema";
@@ -29,6 +29,7 @@ export const getCamperProfile = async (
                 fellowshipName: fellowshipTable.fellowshipName,
                 unitName: unitTable.unitName,
                 unitDutiesMdText: unitTable.unitDuties,
+                isRegPhoneNumber: sql<boolean>`${registrantsTable.phoneNumber} IS NOT NULL`,
             })
             .from(registrantsTable)
             .innerJoin(
