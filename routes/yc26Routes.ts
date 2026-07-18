@@ -5,6 +5,7 @@ import { getCamperProfileRh } from "./requestHandlers/getCamperProfile.rh";
 import { getRegStatusRh } from "./requestHandlers/getRegStatus.rh";
 import { getCoordRegDropdownsRh } from "./requestHandlers/getCoordRegDropdowns";
 import { registerCoordinatorRh } from "./requestHandlers/registerCoordinator.rh";
+import { addPhoneNumberRh } from "./requestHandlers/addPhoneNumber.rh";
 
 const yc26Router = express.Router();
 
@@ -21,6 +22,11 @@ yc26Router.get(
 yc26Router.post(
     '/register',
     registerCamperRh,
+);
+
+yc26Router.patch(
+    '/add-phone-number',
+    addPhoneNumberRh,
 );
 
 yc26Router.post(
