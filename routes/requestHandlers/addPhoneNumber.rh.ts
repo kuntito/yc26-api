@@ -27,7 +27,7 @@ const addPhoneNumberRh = async (
             .status(400)
             .json({
                 success: false,
-                clientMessage: validationRes.reason,
+                clientMessage: "something went wrong.",
                 debug: {
                     errorMessage: "phone number validation failed"
                 }
