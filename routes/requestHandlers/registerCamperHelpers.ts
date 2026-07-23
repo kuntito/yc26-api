@@ -3,9 +3,10 @@ import { branchTable } from "../../schemas/branch-schema";
 import { fellowshipTable } from "../../schemas/fellowship-schema";
 import { RegistrantInsertEntity, registrantsTable } from "../../schemas/registrants-schema";
 import { unitTable } from "../../schemas/unit-schema";
-import { eq, ilike } from "drizzle-orm";
+import { eq, ilike, isNotNull, isNull } from "drizzle-orm";
 import { capitalize, logDbError, sendEmail } from "../../util/helpers";
 import { genderTable } from "../../schemas/gender-schema";
+import { familyTable } from "../../schemas/family-schema";
 
 
 interface CamperDetails {
@@ -287,6 +288,8 @@ export const constructConfirmationMail = (
         <p>this year, campers would be grouped into families.<br/>
         once the grouping is finalized, you will be notified.</p>
 
+        <p>check your camp details <a href="https://www.algcmediaibadan.org/my-details" style="color: #00003F; font-weight: bold;">here</a>.</p>
+
         <p>speak to you soon.</p>
 
         <p style="font-weight: bold; color: #00003F;">
@@ -329,6 +332,191 @@ export const sendMailRegConfirmation = async (
     } catch (e) {
         console.error(
             `couldn't send registration email, userId = ${details.camperId}, email=${details.email}`, 
+            e
+        );
+    }
+    return false;
+}
+
+// FIXME at time of writing, these values represent db data
+// and have case-sensitive usage, if db data changes, this could misbehave.
+export type GenderName = "male" | "female";
+export type FellowshipName = "Single" | "Teenager";
+export type BranchName = "Oyo" | "Lagos" | "Kwara" | "Kogi" | "Ogun" | "Edo";
+
+
+export interface UnadoptedCamper {
+    camperId: number;
+    genderName: GenderName;
+    fellowshipName: FellowshipName;
+    branchName: BranchName;
+}
+
+
+export const toUnadoptedCamper = (
+    details: RegisteredCamperDetails
+): UnadoptedCamper => ({
+    camperId: details.camperId,
+    genderName: details.genderName as GenderName,
+    fellowshipName: details.fellowshipName as FellowshipName,
+    branchName: details.branchName as BranchName,
+});
+
+
+export class CampFamily {
+    id: number;
+    members: UnadoptedCamper[];
+    
+    constructor(
+        id: number,
+        members: UnadoptedCamper[],
+    ) {
+        this.id = id;
+        this.members = members;
+    }
+
+    addMember(
+        unadoptedCamper: UnadoptedCamper,
+    ) {
+        this.members.push(
+            unadoptedCamper
+        );
+    }
+
+    howMany(
+        unadoptedCamper: UnadoptedCamper
+    ): number {
+        return this.members.filter(m =>
+            m.genderName === unadoptedCamper.genderName &&
+            m.fellowshipName === unadoptedCamper.fellowshipName &&
+            m.branchName === unadoptedCamper.branchName
+        ).length;
+    }
+}
+
+
+const whichFamilyIsLacking = (
+    camper: UnadoptedCamper,
+    families: CampFamily[],
+): CampFamily | null => {
+    if (families.length === 0) return null;
+
+    const sortedFamilies = families
+        .map(f => ({
+            family: f,
+            count: f.howMany(camper),
+            size: f.members.length
+        }))
+        .sort((a, b) => {
+            if (a.count !== b.count) return a.count - b.count;
+            return a.size - b.size;
+        });
+
+    return sortedFamilies[0].family;
+}
+
+
+const fetchFamilyRows = async () => {
+    try {
+        return await ycDb
+            .select()
+            .from(familyTable);
+    } catch (e) {
+        logDbError("couldn't fetch family rows", e);
+    }
+    return null;
+};
+
+
+const fetchAdoptedCampers = async () => {
+    try {
+        return await ycDb
+            .select({
+                camperId: registrantsTable.registrantId,
+                genderName: genderTable.genderName,
+                fellowshipName: fellowshipTable.fellowshipName,
+                branchName: branchTable.branchName,
+                familyId: registrantsTable.familyId,
+            })
+            .from(registrantsTable)
+            .innerJoin(
+                genderTable,
+                eq(
+                    registrantsTable.genderId,
+                    genderTable.genderId
+                )
+            )
+            .innerJoin(
+                fellowshipTable,
+                eq(registrantsTable.fellowshipId, fellowshipTable.fellowshipId)
+            )
+            .innerJoin(
+                branchTable,
+                eq(registrantsTable.branchId, branchTable.branchId)
+            )
+            .where(
+                isNotNull(registrantsTable.familyId)
+            );
+    } catch (e) {
+        logDbError("couldn't fetch adopted campers", e);
+    }
+    return null;
+};
+
+
+const getCampFamilies = async (): Promise<CampFamily[] | null> => {
+    const familyRows = await fetchFamilyRows();
+    if (familyRows == null) return null;
+
+    const memberRows = await fetchAdoptedCampers();
+    if (memberRows == null) return null;
+
+    return familyRows.map(f => new CampFamily(
+        f.familyId,
+        memberRows
+            .filter(m => m.familyId === f.familyId)
+            .map(m => ({
+                camperId: m.camperId,
+                genderName: m.genderName as GenderName,
+                fellowshipName: m.fellowshipName as FellowshipName,
+                branchName: m.branchName as BranchName,
+            }))
+    ));
+};
+
+export const addCamperToFamily = async (
+    camper: UnadoptedCamper,
+): Promise<boolean> => {
+
+    const campFamilies = await getCampFamilies();
+    if (campFamilies == null) {
+        console.log(`list of camp families is null`);
+        return false;
+    }
+
+    const family = whichFamilyIsLacking(
+        camper, 
+        campFamilies
+    );
+    if (family == null) {
+        return false;
+    }
+    
+    try {
+        const queryRes = await ycDb
+            .update(registrantsTable)
+            .set({ familyId: family.id })
+            .where(
+                eq(
+                    registrantsTable.registrantId,
+                    camper.camperId,
+                )
+            );
+
+        return queryRes.rowCount === 1;
+    } catch (e) {
+        logDbError(
+            `couldn't assign camper ${camper.camperId} to family ${family.id}`,
             e
         );
     }
