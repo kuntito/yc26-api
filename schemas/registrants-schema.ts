@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, boolean } from "drizzle-orm/pg-core";
 
 export const registrantsTN = "registrants";
 export const registrantsTable = pgTable(registrantsTN, {
@@ -21,6 +21,9 @@ export const registrantsTable = pgTable(registrantsTN, {
         .notNull(),
     phoneNumber: text("phone_number"),
     familyId: integer("family_id"),
+    isAvailable: boolean("is_available")
+        .notNull()
+        .default(true),
 });
 
 export type RegistrantEntity = typeof registrantsTable.$inferSelect;

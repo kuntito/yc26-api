@@ -1,7 +1,7 @@
 import { ycDb } from "../../clients/dbClient";
 import { branchTable } from "../../schemas/branch-schema";
 import { registrantsTable } from "../../schemas/registrants-schema";
-import { eq, count } from "drizzle-orm";
+import { eq, count, and } from "drizzle-orm";
 import { logDbError } from "../../util/helpers";
 
 export type RegCountPerBranch = {
@@ -26,9 +26,15 @@ export const getRegCountPerBranch = async (
             .from(branchTable)
             .leftJoin(
                 registrantsTable,
-                eq(
-                    branchTable.branchId,
-                    registrantsTable.branchId,
+                and(
+                    eq(
+                        branchTable.branchId,
+                        registrantsTable.branchId,
+                    ),
+                    eq(
+                        registrantsTable.isAvailable,
+                        true,
+                    ),
                 )
             )
             .groupBy(branchTable.branchName);

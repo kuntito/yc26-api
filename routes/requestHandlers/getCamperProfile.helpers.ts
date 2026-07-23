@@ -1,4 +1,4 @@
-import { count, eq, sql } from "drizzle-orm";
+import { and, count, eq, ilike, sql } from "drizzle-orm";
 import { ycDb } from "../../clients/dbClient";
 import { branchTable } from "../../schemas/branch-schema";
 import { fellowshipTable } from "../../schemas/fellowship-schema";
@@ -61,9 +61,15 @@ export const getCamperProfile = async (
                 )
             )
             .where(
-                eq(
-                    registrantsTable.email,
-                    camperMail,
+                and(
+                    ilike(
+                        registrantsTable.email,
+                        camperMail,
+                    ),
+                    eq(
+                        registrantsTable.isAvailable,
+                        true,
+                    )
                 )
             )
             .limit(1);

@@ -3,7 +3,7 @@ import { branchTable } from "../../schemas/branch-schema";
 import { CoordinatorInsertEntity, coordinatorsTable } from "../../schemas/coordinators-schema";
 import { genderTable } from "../../schemas/gender-schema";
 import { lodgeOptionTable } from "../../schemas/lodgeOption-schema";
-import { eq } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 import { capitalize, logDbError, sendEmail } from "../../util/helpers";
 
 
@@ -129,7 +129,7 @@ export const registerCoordinator = async (
         const coordinator: CoordinatorInsertEntity = {
             firstName: coordinatorDetails.firstName,
             lastName: coordinatorDetails.lastName,
-            email: coordinatorDetails.email,
+            email: coordinatorDetails.email.toLowerCase(),
             genderId: coordinatorDetails.genderId,
             branchId: coordinatorDetails.branchId,
             lodgeOptionId: coordinatorDetails.lodgeOptionId,
@@ -173,7 +173,7 @@ export const registerCoordinator = async (
                 )
             )
             .where(
-                eq(
+                ilike(
                     coordinatorsTable.email,
                     coordinatorDetails.email,
                 )
@@ -204,7 +204,7 @@ export const checkCoordEmailExists = async (
             })
             .from(coordinatorsTable)
             .where(
-                eq(
+                ilike(
                     coordinatorsTable.email,
                     email
                 )
