@@ -5,7 +5,8 @@ export const familyTable = pgTable(familyTableName, {
     familyId: serial("id")
         .primaryKey(),
     familyName: text("name")
-        .notNull()
+        .notNull(),
+    familyInfo: text("info")
 });
 
 export type FamilyEntity = typeof familyTable.$inferSelect;

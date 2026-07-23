@@ -7,6 +7,7 @@ import { registrantsTable } from "../../schemas/registrants-schema";
 import { unitTable } from "../../schemas/unit-schema";
 import { CamperProfile } from "./getCamperProfile.rh";
 import { logDbError } from "../../util/helpers";
+import { familyTable } from "../../schemas/family-schema";
 
 
 export type GetCamperProfileResult =
@@ -30,6 +31,8 @@ export const getCamperProfile = async (
                 unitName: unitTable.unitName,
                 unitDutiesMdText: unitTable.unitDuties,
                 isRegPhoneNumber: sql<boolean>`${registrantsTable.phoneNumber} IS NOT NULL`,
+                familyName: familyTable.familyName,
+                familyInfoMdText: familyTable.familyInfo,
             })
             .from(registrantsTable)
             .innerJoin(
@@ -58,6 +61,13 @@ export const getCamperProfile = async (
                 eq(
                     registrantsTable.unitId,
                     unitTable.unitId,
+                )
+            )
+            .leftJoin(
+                familyTable,
+                eq(
+                    registrantsTable.familyId,
+                    familyTable.familyId,
                 )
             )
             .where(

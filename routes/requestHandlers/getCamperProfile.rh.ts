@@ -12,6 +12,8 @@ export type CamperProfile = {
     unitName: string;
     unitDutiesMdText: string | null;
     isRegPhoneNumber: boolean;
+    familyName: string | null;
+    familyInfoMdText: string | null;
 }
 
 type CamperProfileResponse = 
