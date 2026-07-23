@@ -20,6 +20,7 @@ export const registrantsTable = pgTable(registrantsTN, {
     unitId: integer("unit_id")
         .notNull(),
     phoneNumber: text("phone_number"),
+    familyId: integer("family_id"),
 });
 
 export type RegistrantEntity = typeof registrantsTable.$inferSelect;
