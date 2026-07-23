@@ -1,4 +1,9 @@
 import { pgTable, serial, text, integer, boolean } from "drizzle-orm/pg-core";
+import { genderTable } from "./gender-schema";
+import { branchTable } from "./branch-schema";
+import { fellowshipTable } from "./fellowship-schema";
+import { unitTable } from "./unit-schema";
+import { familyTable } from "./family-schema";
 
 export const registrantsTN = "registrants";
 export const registrantsTable = pgTable(registrantsTN, {
@@ -12,15 +17,20 @@ export const registrantsTable = pgTable(registrantsTN, {
         .notNull()
         .unique(),
     genderId: integer("gender_id")
-        .notNull(),
+        .notNull()
+        .references(() => genderTable.genderId),
     branchId: integer("branch_id")
-        .notNull(),
+        .notNull()
+        .references(() => branchTable.branchId),
     fellowshipId: integer("fellowship_id")
-        .notNull(),
+        .notNull()
+        .references(() => fellowshipTable.fellowshipId),
     unitId: integer("unit_id")
-        .notNull(),
+        .notNull()
+        .references(() => unitTable.unitId),
     phoneNumber: text("phone_number"),
-    familyId: integer("family_id"),
+    familyId: integer("family_id")
+        .references(() => familyTable.familyId),
     isAvailable: boolean("is_available")
         .notNull()
         .default(true),

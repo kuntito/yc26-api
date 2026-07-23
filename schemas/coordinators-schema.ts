@@ -1,4 +1,7 @@
 import { pgTable, serial, text, integer } from "drizzle-orm/pg-core";
+import { genderTable } from "./gender-schema";
+import { branchTable } from "./branch-schema";
+import { lodgeOptionTable } from "./lodgeOption-schema";
 
 export const coordinatorsTN = "coordinators";
 export const coordinatorsTable = pgTable(coordinatorsTN, {
@@ -12,11 +15,14 @@ export const coordinatorsTable = pgTable(coordinatorsTN, {
         .notNull()
         .unique(),
     genderId: integer("gender_id")
-        .notNull(),
+        .notNull()
+        .references(() => genderTable.genderId),
     branchId: integer("branch_id")
-        .notNull(),
+        .notNull()
+        .references(() => branchTable.branchId),
     lodgeOptionId: integer("lodge_option_id")
-        .notNull(),
+        .notNull()
+        .references(() => lodgeOptionTable.lodgeOptionId),
 });
 
 export type CoordinatorEntity = typeof coordinatorsTable.$inferSelect;
